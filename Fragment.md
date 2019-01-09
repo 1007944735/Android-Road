@@ -144,3 +144,93 @@ transaction.commit();
 
 > - getSupportFragmentManagerManager：得到是的所在Fragment的父容器的管理器
 > - getChildFragmentManager：得到的是所在Fragment里面子容器的管理器，主要是Fragment嵌套时使用
+
+## 五、Fragment与Activity之间的通信 ##
+
+### 1. Activity向Fragment传数据 ###
+Activity向Fragment传数据比较简单，通过setArguments将参数传入到Bundle中，在通过getArguments取出即可。
+### 2. Fragment向Activity传数据 ###
+Fragment向Activity传数据可以用接口的方式，在Fragment中编写接口，在Activity中实现
+### 3. Demo ###
+Activity文件
+```
+public class MainActivity extends AppCompatActivity {
+    private TextView input;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        input=findViewById(R.id.input);
+        FragmentOne fragmentOne=FragmentOne.newInstance("Lina");
+        //实现接口
+        fragmentOne.setReceiverMagListener(new FragmentOne.ReceiverMsgListener() {
+            @Override
+            public void receive(String name) {
+                input.setText(name);
+            }
+        });
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment,fragmentOne)
+                .commit();
+    }
+}
+```
+Fragment文件
+```
+public class FragmentOne extends Fragment {
+    private String name;
+    private Button send;
+    private EditText edit;
+    private Activity mActivity;
+    private ReceiverMsgListener listener;
+    public static FragmentOne newInstance(String name) {
+
+        Bundle args = new Bundle();
+        args.putString("name",name);
+        FragmentOne fragment = new FragmentOne();
+        fragment.setArguments(args);
+        return fragment;
+    }
+    //设置接口，有Activity实现接口
+    public FragmentOne setReceiverMagListener(ReceiverMsgListener listener){
+        this.listener=listener;
+        return this;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivity= (Activity) context;
+        name=getArguments().getString("name");
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_one,container,false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        send=view.findViewById(R.id.send);
+        edit=view.findViewById(R.id.edit);
+        edit.setText(name);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str=edit.getText().toString();
+                //调用接口
+                listener.receive(str);
+            }
+        });
+    }
+    //定义接口
+    public interface ReceiverMsgListener{
+        void receive(String name);
+    }
+}
+```
+
+
