@@ -358,5 +358,5 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 ```
-
-![](https://i.imgur.com/eqZNSTL.gif)
+效果图
+![](https://i.imgur.com/XprEBQk.gif)
