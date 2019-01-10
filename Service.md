@@ -10,6 +10,7 @@ Service默认并不会运行在子线程中，而是执行在UI线程中，所�
 
 ## 三、Service的生命周期 ##
 ![](https://i.imgur.com/60cfagw.png)
+
 上面的图就是Service的生命周期，左边是使用了startService所创建服务的生命周期，右图是使用了bindService所创建服务的生命周期。
 
 - onCreate：系统在service第一次创建时执行此方法，在整个生命周期中**只会执行一次**。如果service已经运行，这个方法就不会被调用。
