@@ -41,6 +41,16 @@
 
 Activity的管理采用任务栈的形式，“先进后出”的栈结构
 
+获取当前正在运行的栈
+```
+ActivityManager am= (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+List<ActivityManager.RunningTaskInfo> infos=am.getRunningTasks(1);
+ActivityManager.RunningTaskInfo info=infos.get(0);//当前栈
+Log.d("TAG", "栈顶Activity:"+info.topActivity.getClassName());
+Log.d("TAG", "栈底Activity:"+info.baseActivity.getClassName());
+```
+> 要在配置文件中添加权限：<uses-permission android:name="android.permission.GET_TASKS"/\>
+
 ### 四种启动模式 ###
 
 - 标准模式（standard）：默认启动模式，每启动一个Activity，就会创建一个新的Activity实例并置于栈顶。谁启动了这个Activity，那么这个Activity就会运行在启动它的那个Activity任务栈中。
