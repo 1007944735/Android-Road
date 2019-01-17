@@ -297,9 +297,43 @@ set标签里的属性，所有动画共享
 
 - ValueAnimator
 	该类有三个方法
-        ValueAnimator.ofArgb();
-        ValueAnimator.ofInt();
-        ValueAnimator.ofFloat();
+        ValueAnimator.ofArgb(int values)
+        ValueAnimator.ofInt(float values)
+        ValueAnimator.ofFloat(int values)
+		ValueAnimator.ofObject(int values)
+
+具体使用
+```
+ValueAnimator animator=ValueAnimator.ofInt(100,200);
+animator.setDuration(5000);
+animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+	@Override
+	public void onAnimationUpdate(ValueAnimator animation) {
+		int value= (int) animation.getAnimatedValue();
+		rectangle.setText(value+"");
+		Log.d("TAG", "onAnimationUpdate: "+value);
+	}
+});
+animator.start();
+```
+
+ValueAnimator.ofInt()可以传入多个值，动画开始时，将进行平滑过渡，比如传入10，20，50，会先从10平滑到20再从20平滑到50。addUpdateListener是监听值的变化，通过animation.getAnimatedValue()获取，还有addPauseListener（），addListener（）。其他方法和ofInt（）类似
 
 
+- ObjectAnimation
+
+直接对对象的属性进行改变操作，从而实现动画效果
+
+具体使用
+```
+ObjectAnimator animator=ObjectAnimator.ofFloat(rectangle,"TranslationX", 100);
+animator.setDuration(5000);
+animator.start();
+```
+
+
+## 四、插值器 ##
+
+
+## 五、动画的监听 ##
 
