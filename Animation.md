@@ -101,7 +101,7 @@ private AnimationDrawable createFrameAnim(){
 ### 二、补间动画 ###
 补间动画作用于view，分为平移，旋转，缩放和透明度
 
-- 平移（translate）
+- **平移（translate）**
 	java代码
 	```
 	TranslateAnimation animation=new TranslateAnimation(0,200,0,0);
@@ -129,7 +129,7 @@ private AnimationDrawable createFrameAnim(){
 	animation.setDuration(3000);
 	rectangle.startAnimation(animation);
 	```
-- 旋转（rotate）
+- **旋转（rotate）**
 	java代码
 	```
     RotateAnimation animation=new RotateAnimation(0,360, Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
@@ -165,7 +165,7 @@ private AnimationDrawable createFrameAnim(){
 	rectangle.startAnimation(animation);
 	```
 
-- 缩放（scale）
+- **缩放（scale）**
 	java代码
 	```
 	ScaleAnimation animation=new ScaleAnimation(1f,0.5f,1f,0.5f,Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
@@ -205,7 +205,7 @@ private AnimationDrawable createFrameAnim(){
 	rectangle.startAnimation(animation);
 	```
 
-- 透明度（alpha）
+- **透明度（alpha）**
 	java代码
 	```
 	AlphaAnimation animation=new AlphaAnimation(1f,0f);
@@ -234,7 +234,7 @@ private AnimationDrawable createFrameAnim(){
 	rectangle.startAnimation(animation);
 	```
 
-- 动画集合
+- **动画集合**
 
 在xml中使用set，在java代码中使用AnimationUtils.loadAnimation加载xml文件
 
@@ -289,8 +289,6 @@ set标签里的属性，所有动画共享
 
 >  repeatMode:restart和reverse；restart：正序重放，reverse：逆序重放
 
-- 插值器（interpolator）
-
 
 ## 三、属性动画 ##
 属性动画作用于任何java对象，可以实现各种动画效果，属性动画通过不断对值进行改变，并不断将该值赋给对象的属性，从而实现在该属性上的动画效果，属性动画有两个常用的类，ValueAnimator类和ObjectAnimator类。
@@ -320,7 +318,7 @@ animator.start();
 ValueAnimator.ofInt()可以传入多个值，动画开始时，将进行平滑过渡，比如传入10，20，50，会先从10平滑到20再从20平滑到50。addUpdateListener是监听值的变化，通过animation.getAnimatedValue()获取，还有addPauseListener（），addListener（）。其他方法和ofInt（）类似
 
 
-- ObjectAnimation
+- **ObjectAnimation**
 
 直接对对象的属性进行改变操作，从而实现动画效果
 
@@ -331,9 +329,153 @@ animator.setDuration(5000);
 animator.start();
 ```
 
+ObjectAnimator方法中传入的第二个参数是对象的属性，并且对象对这个属性提供了set和get方法，因为本质上是让ObjectAnimator类根据传入的属性名寻找该对象对应的属性名的set和get方法，从而对对象进行赋值
+
+解决方案：
+- 手动设置对象类的set和get方法
+	1. 如果是自定义的view，可以直接添加set和get方法
+	2. 如果是系统的view，可以通过继承该对象，从而给对象添加上该属性，还可以包装原始动画对象，间接给对象加上set和get方法
+
+第一种方法比较简单,下面是第二种方法的使用
+```
+public class PropertyAnimation extends AppCompatActivity {
+    private TextView rectangle;
+	//包装类
+    private TextViewWrapper wrapper;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_property_animation);
+        rectangle=findViewById(R.id.rectangle);
+    }
+
+    public void move(View view) {
+        wrapper=new TextViewWrapper(rectangle);
+		//传入的是包装类
+        ObjectAnimator animator=ObjectAnimator.ofInt(wrapper,"width", 100);
+        animator.setDuration(5000);
+        animator.start();
+    }
+
+    private class TextViewWrapper {
+        private TextView view;
+        public TextViewWrapper(TextView view){
+            this.view=view;
+        }
+
+        public void setWidth(int width){
+            view.getLayoutParams().width=width;
+            view.requestLayout();
+        }
+
+        public int getWidth(){
+            return view.getLayoutParams().width;
+        }
+    }
+}
+
+```
+- **组合动画**
+
+实现组合动画的类是AnimatorSet,可以java设置或者xml设置
+
+```
+AnimatorSet.play(Animator anim)   ：播放当前动画
+AnimatorSet.after(long delay)   ：将现有动画延迟x毫秒后执行
+AnimatorSet.with(Animator anim)   ：将现有动画和传入的动画同时执行
+AnimatorSet.after(Animator anim)   ：将现有动画插入到传入的动画之后执行
+AnimatorSet.before(Animator anim) ：  将现有动画插入到传入的动画之前执行
+```
+具体使用
+```
+AnimatorSet set=new AnimatorSet();
+ObjectAnimator animator=ObjectAnimator.ofFloat(rectangle,"translationX", 100);
+ObjectAnimator animator1=ObjectAnimator.ofFloat(rectangle,"rotation", 100);
+set.setDuration(3000);
+set.play(animator).with(animator1);
+set.start();
+```
+
+
+
 
 ## 四、插值器 ##
 
+插值器（Interpolator）是用来指定动画如何变化的，可以自定义插值器来达到自己想要的动画，插值器可以在java中用Animator.setInterpolator或者在xml文件中通过 android:interpolator来设定,android中内置了9种插值器，如下
+
+|Interpolator class|Resouce ID|说明|
+|:----:|:----:|:----:|
+|LinearInterpolator|@android:anim/linear_interpolator|线性插值器，做匀速运动|
+|AccelerateInterpolator|@android:anim/accelerate_interpolator |加速插值器，做加速运动|
+|DecelerateInterpolator|@android:anim/decelerate_interpolator |减速插值器，做减速运动|
+|AccelerateDecelerateInterpolator|@android:anim/accelerate_decelerate_interpolator |先加速后减速插值器|
+|AnticipateInterpolator|@android:anim/anticipate_interpolator|先反方向运动一点，然后再向正方向做加速运动|
+|OvershootInterpolator|@android:anim/overshoot_interpolator|先加速在减速，最后会超过终点位置|
+|AnticipateOvershootInterpolator|@android:anim/anticipate_overshoot_interpolator |AnticipateInterpolator和OvershootInterpolator效果的叠加|
+|AnticipateOvershootInterpolator|@android:anim/anticipate_overshoot_interpolator |AnticipateInterpolator和OvershootInterpolator效果的叠加|
+|BounceInterpolator|@android:anim/bounce_interpolator|弹跳插值器，类似球掉落在地上后会弹|
+|CycleInterpolator|@android:anim/cycle_interpolator|周期插值器|
+
+**自定义插值器**
+
+自定义插值器需要继承TimeInterpolator，实现getInterpolation方法
+
+具体使用
+```
+private class MyInterpolator implements TimeInterpolator {
+
+	@Override
+	public float getInterpolation(float input) {
+		float t=2.0f*input-1.0f;
+		return 0.5f*(t*t*t+1.0f);
+	}
+}
+```
+
 
 ## 五、动画的监听 ##
+
+动画的监听是使用addListener，addPauseListener和addUpdateListener
+
+具体使用
+```
+animator.addListener(new Animator.AnimatorListener() {
+	@Override
+	public void onAnimationStart(Animator animation) {
+		//动画开始
+	}
+
+	@Override
+	public void onAnimationEnd(Animator animation) {
+		//动画结束
+	}
+
+	@Override
+	public void onAnimationCancel(Animator animation) {
+		//动画取消
+	}
+
+ 	@Override
+	public void onAnimationRepeat(Animator animation) {
+		//动画重复播放时
+	}
+});
+animator.addPauseListener(new Animator.AnimatorPauseListener() {
+	@Override
+	public void onAnimationPause(Animator animation) {
+		//动画暂停
+	}
+
+	@Override
+	public void onAnimationResume(Animator animation) {
+		//动画重新启动
+ 	}
+});
+animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+	@Override
+  	public void onAnimationUpdate(ValueAnimator animation) {
+		//获取动画过程中的当前值
+   	}
+});
+```
 
