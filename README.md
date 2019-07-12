@@ -9,3 +9,4 @@
 - ### [自定义View](Article/View.md) ###
 - ### [Tansition动画和共享元素](Article/Transition.md) ###
 - ### [创建者模式](DesignMode/创建型模式.md) ###
+- ### [结构型模式](DesignMode/结构型模式.md) ###
