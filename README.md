@@ -10,3 +10,4 @@
 - ### [Tansition动画和共享元素](Article/Transition.md) ###
 - ### [创建者模式](DesignMode/创建型模式.md) ###
 - ### [结构型模式](DesignMode/结构型模式.md) ###
+- ### [行为型模式](DesignMode/行为型模式.md) ###
